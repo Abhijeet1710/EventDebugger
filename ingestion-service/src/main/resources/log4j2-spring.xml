@@ -1,0 +1,34 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Configuration>
+    <Properties>
+        <Property name="log.pattern">VERIFY_LOG4J2_ACTIVE | level=%level | logger=%logger | message=%msg%n</Property>
+    </Properties>
+
+    <Appenders>
+        <Console name="console" target="SYSTEM_OUT">
+            <PatternLayout pattern="${log.pattern}" />
+        </Console>
+
+                <SplunkHttp
+                name="splunkhttp"
+                url="https://localhost:8088"
+                token="9c4dc67d-4647-424f-a793-a24f29c38e8c"
+                host="localhost"
+                index="ing_service"
+                type="event" 
+                source="ing"
+                sourcetype="log4j"
+                messageFormat="json" 
+                DisableCertificateValidation="true">
+            <PatternLayout pattern="%m" />
+        </SplunkHttp>
+
+    </Appenders>
+
+    <Loggers>
+        <Root level="info">
+            <AppenderRef ref="console" />
+            <AppenderRef ref="splunkhttp" />
+        </Root>
+    </Loggers>
+</Configuration>
