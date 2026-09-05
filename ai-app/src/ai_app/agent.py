@@ -96,6 +96,7 @@ class StageResult(BaseModel):
 
     timestamp: str | None = None
     evidence: str | None = None
+    description: str | None = None
 
 
 class InvestigationResult(BaseModel):
@@ -228,6 +229,115 @@ RESULT_FORMATTER_PROMPT = """
 
     Do not add information that is not present in the investigation
     findings.
+
+    ============================================================
+    ERROR PLACEMENT AND TIMELINE
+    ============================================================
+
+    The "stages" array represents the chronological processing timeline.
+
+    Configured processing stages must normally appear in their configured
+    order.
+
+    However, explicit error events from the logs must be inserted into
+    the timeline at their actual chronological position.
+
+    Example configured stages:
+
+    1. Request Received
+    2. Validation
+    3. Filter
+    4. Transformation
+    5. Outbound
+
+    Observed evidence:
+
+    Request Received
+    Validation
+    Filter
+    ERROR
+    (no Transformation)
+    (no Outbound)
+
+    The output must be:
+
+    Request Received       SUCCESS
+    Validation             SUCCESS
+    Filter                 SUCCESS
+    ERROR                  FAILED
+    Transformation         NOT_REACHED
+    Outbound               NOT_REACHED
+
+    Do NOT put ERROR at the end of the array.
+
+    The ERROR entry must be positioned according to its timestamp relative
+    to the configured stages.
+
+    For an explicit error event use:
+
+    stage = "ERROR"
+    status = "FAILED"
+
+    Use the actual error timestamp when available.
+
+    Use the actual error message as evidence.
+
+    Do not invent an error description.
+
+    ============================================================
+    PRECEDING STAGE DESCRIPTION
+    ============================================================
+
+    When an explicit error occurs after a successfully completed stage
+    and before the next configured stage, update the description of the
+    preceding successful stage.
+
+    For example:
+
+    Filter:
+    status = SUCCESS
+
+    description:
+    "Filter completed successfully. An explicit error was subsequently
+    observed before Transformation was reached."
+
+    The description must clearly indicate that the error occurred after
+    the stage.
+
+    Do NOT claim that the error occurred inside the preceding stage unless
+    the logs explicitly establish that.
+
+    ============================================================
+    NOT_REACHED STAGES
+    ============================================================
+
+    If an explicit error occurs before a later configured stage and there
+    is no evidence that the later stage was reached:
+
+    mark the later stage as NOT_REACHED.
+
+    For example:
+
+    ERROR occurs after Filter and before Transformation.
+
+    Then:
+
+    Transformation → NOT_REACHED
+    Outbound → NOT_REACHED
+
+    Do not mark Transformation as FAILED unless there is explicit evidence
+    that the error occurred during Transformation.
+
+    ============================================================
+    OVERALL STATUS
+    ============================================================
+
+    If an explicit processing error is present for the event:
+
+    overall_status = FAILED
+
+    Do not require a later stage failure log when an explicit error already
+    establishes that processing failed.
 """
 
 # ============================================================
@@ -324,6 +434,22 @@ SYSTEM_PROMPT = """
     Do not call unrelated Splunk administrative tools.
 
     Use splunk_run_query for the actual log investigation.
+
+    When retrieving Splunk results, preserve explicit ERROR/exception
+    events as investigation evidence.
+
+    Do not discard an error simply because it does not match one of the
+    configured stage stepValue values.
+
+    For every explicit error event, preserve:
+    - timestamp
+    - severity
+    - message
+    - logger when available
+    - relevant event identifier
+
+    The error must remain available to the final result formatter so it
+    can be positioned chronologically between configured stages.
 
     ============================================================
     EVIDENCE RULES
