@@ -52,9 +52,10 @@ def print_header() -> None:
     )
 
     console.print()
-    
+
     console.print(
-        " Guide: Select a service, enter your investigation query, and explore the results.",
+        " Guide: Select a service, enter your investigation query, "
+        "and explore the results.",
         style="bold",
     )
 
@@ -88,15 +89,8 @@ def select_service() -> str:
         for service in services
     ]
 
-    # console.print(
-    #     " Select a service",
-    #     style="bold",
-    # )
-
-    # console.print()
-
     return inquirer.select(
-        message="",
+        message="Select a service",
         choices=choices,
         pointer="❯",
         qmark="",
@@ -167,11 +161,13 @@ def print_summary(result) -> None:
 
     console.print()
 
+
 # -------------------------------------------------------------------
-# Investigation summary
+# Investigation query
 # -------------------------------------------------------------------
 
 def print_query(result) -> None:
+
     if not getattr(result, "query", None):
         return
 
@@ -189,8 +185,9 @@ def print_query(result) -> None:
 
     console.print()
 
+
 # -------------------------------------------------------------------
-# Timeline
+# Processing timeline
 # -------------------------------------------------------------------
 
 def print_timeline(result) -> None:
@@ -223,7 +220,7 @@ def print_timeline(result) -> None:
 
 
 # -------------------------------------------------------------------
-# Evidence
+# Evidence view
 # -------------------------------------------------------------------
 
 def show_evidence(item) -> None:
@@ -302,9 +299,13 @@ def show_evidence(item) -> None:
 # Interactive timeline
 # -------------------------------------------------------------------
 
-def interactive_timeline(result) -> None:
+def interactive_timeline(result) -> str:
 
     choices = []
+
+    # ---------------------------------------------------------------
+    # Timeline choices
+    # ---------------------------------------------------------------
 
     for item in result.timeline:
 
@@ -328,16 +329,46 @@ def interactive_timeline(result) -> None:
             }
         )
 
+    # ---------------------------------------------------------------
+    # Action choices
+    #
+    # Newline gives visual separation without creating a fake
+    # selectable separator.
+    # ---------------------------------------------------------------
+
     choices.append(
         {
-            "name": "←  I'm Good",
+            "name": "↻  Investigate Another Event",
+            "value": "__new_investigation__",
+        }
+    )
+
+    choices.append(
+        {
+            "name": "←  I'm Good, Exit",
             "value": "__exit__",
         }
     )
 
+    # ---------------------------------------------------------------
+    # Interactive loop
+    # ---------------------------------------------------------------
+
     while True:
 
         console.print()
+        console.print()
+
+        console.print(
+            " Select a step to view evidence",
+            style="bold",
+        )
+
+        # console.print(
+        #     " ↑/↓ Navigate   Enter Select   Ctrl+C Exit",
+        #     style="dim",
+        # )
+
 
         try:
 
@@ -350,16 +381,33 @@ def interactive_timeline(result) -> None:
             ).execute()
 
         except KeyboardInterrupt:
+
             console.clear()
-            return
+            return "exit"
+
+        # -----------------------------------------------------------
+        # New investigation
+        # -----------------------------------------------------------
+
+        if selected == "__new_investigation__":
+
+            console.clear()
+            return "new"
+
+        # -----------------------------------------------------------
+        # Exit
+        # -----------------------------------------------------------
 
         if selected == "__exit__":
+
             console.clear()
-            return
+            return "exit"
+
+        # -----------------------------------------------------------
+        # Evidence
+        # -----------------------------------------------------------
 
         show_evidence(selected)
-
-        console.clear()
 
         console.clear()
 
@@ -412,7 +460,7 @@ async def run_investigation(
 def investigate(
     service_name: str,
     user_query: str,
-) -> None:
+) -> str:
 
     try:
 
@@ -436,7 +484,7 @@ def investigate(
             "[yellow]Investigation cancelled.[/yellow]"
         )
 
-        return
+        return "exit"
 
     except Exception as exc:
 
@@ -454,6 +502,10 @@ def investigate(
 
         raise typer.Exit(code=1)
 
+    # ---------------------------------------------------------------
+    # Display result
+    # ---------------------------------------------------------------
+
     console.clear()
 
     print_header()
@@ -461,7 +513,11 @@ def investigate(
     print_query(structured_result)
     print_timeline(structured_result)
 
-    interactive_timeline(structured_result)
+    # ---------------------------------------------------------------
+    # Let user explore result
+    # ---------------------------------------------------------------
+
+    return interactive_timeline(structured_result)
 
 
 # -------------------------------------------------------------------
@@ -480,53 +536,79 @@ def run(
     Investigate a production event using natural language.
     """
 
-    print_header()
+    while True:
 
-    # ---------------------------------------------------------------
-    # 1. Select service
-    # ---------------------------------------------------------------
+        # -----------------------------------------------------------
+        # Start / restart investigation
+        # -----------------------------------------------------------
 
-    service_name = select_service()
+        console.clear()
 
-    console.print()
+        print_header()
 
-    console.print(
-        f" Service selected: [bold]{service_name}[/bold]"
-    )
+        # -----------------------------------------------------------
+        # 1. Select service
+        # -----------------------------------------------------------
 
-    console.print()
+        service_name = select_service()
 
-    # ---------------------------------------------------------------
-    # 2. Get investigation query
-    # ---------------------------------------------------------------
+        console.print()
 
-    if query:
+        # console.print()
 
-        user_query = query
+        # console.print(
+        #     f" Service selected: [bold]{service_name}[/bold]"
+        # )
 
-    else:
+        # console.print()
 
-        user_query = typer.prompt(
-            "What would you like to investigate?"
+        # -----------------------------------------------------------
+        # 2. Get investigation query
+        # -----------------------------------------------------------
+
+        if query:
+
+            user_query = query
+
+            # Use command-line query only for the first investigation.
+            query = None
+
+        else:
+
+            user_query = typer.prompt(
+                "What would you like to investigate?"
+            )
+
+        if not user_query.strip():
+
+            console.print(
+                "[bold red]No investigation query provided.[/bold red]"
+            )
+
+            raise typer.Exit(code=1)
+
+        # -----------------------------------------------------------
+        # 3. Investigate
+        # -----------------------------------------------------------
+
+        action = investigate(
+            service_name,
+            user_query,
         )
 
-    if not user_query.strip():
+        # -----------------------------------------------------------
+        # 4. Handle next action
+        # -----------------------------------------------------------
 
-        console.print(
-            "[bold red]No investigation query provided.[/bold red]"
-        )
+        if action == "new":
+            continue
 
-        raise typer.Exit(code=1)
+        return
 
-    # ---------------------------------------------------------------
-    # 3. Investigate
-    # ---------------------------------------------------------------
 
-    investigate(
-        service_name,
-        user_query,
-    )
-
+# -------------------------------------------------------------------
+# Entry point
+# -------------------------------------------------------------------
 
 if __name__ == "__main__":
     app()
