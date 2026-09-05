@@ -38,6 +38,9 @@ name = "Processing Error"
 
 An ERROR is NOT a processing stage.
 
+Always show all the stages in the configured order, even if they were not reached.
+If a stage was not reached, mark it and subsequent stages as NOT_REACHED. and previous stage as SUCCESS.
+
 ============================================================
 ERROR PLACEMENT
 ============================================================
@@ -105,8 +108,6 @@ Explicit processing failure exists.
 NOT_FOUND:
 No evidence of the event exists.
 
-UNKNOWN:
-Evidence is insufficient.
 
 ============================================================
 OUTPUT

@@ -128,9 +128,6 @@ Explicit evidence shows failure during that stage.
 NOT_REACHED:
 Evidence shows processing stopped before the stage.
 
-UNKNOWN:
-Insufficient evidence exists to determine the stage status.
-
 FILTERED_OUT:
 Use when Filter was successfully reached and the evidence indicates
 processing stopped there because the event was filtered.

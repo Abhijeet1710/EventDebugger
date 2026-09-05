@@ -13,8 +13,7 @@ class TimelineItem(BaseModel):
         "FAILED",
         "NOT_FOUND",
         "FILTERED_OUT",
-        "NOT_REACHED",
-        "UNKNOWN"
+        "NOT_REACHED"
     ]
 
     timestamp: str | None = None

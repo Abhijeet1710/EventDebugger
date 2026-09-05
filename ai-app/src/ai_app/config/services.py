@@ -19,7 +19,7 @@ SERVICE_CONFIGS = {
             {
                 "stageName": "Request Received",
                 "stageType": "RECEIVED",
-                "stepValue": "Request received",
+                "stepValue": "request received",
                 "order": 1
             },
             {
@@ -35,16 +35,22 @@ SERVICE_CONFIGS = {
                 "order": 3
             },
             {
+                "stageName": "Save to DB",
+                "stageType": "SAVE",
+                "stepValue": "saved to db",
+                "order": 4
+            },
+            {
                 "stageName": "Transformation",
                 "stageType": "TRANSFORM",
                 "stepValue": "transform complete",
-                "order": 4
+                "order": 5
             },
             {
                 "stageName": "Outbound",
                 "stageType": "PUBLISH",
                 "stepValue": "outbound complete",
-                "order": 5
+                "order": 6
             }
         ]
     }

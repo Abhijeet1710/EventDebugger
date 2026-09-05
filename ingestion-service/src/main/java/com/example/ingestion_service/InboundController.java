@@ -15,24 +15,25 @@ public class InboundController {
 
     @PostMapping("/inbound")
     public ResponseEntity<String> inbound(@RequestBody EventRequest request) {
-        log.info("customerId={} eventId={} step=Request received", request.getCustomerId(), request.getEventId());
+        log.info("customerId={} eventId={} step=request received", request.getCustomerId(), request.getEventId());
 
         validateStatus(request);
 
         boolean filtered = filterApr(request);
         if (filtered) {
-            log.info("customerId={} eventId={} step=filter complete", request.getCustomerId(), request.getEventId());
             return ResponseEntity.ok("filtered");
         }
 
+        log.info("customerId={} eventId={} step=saved to db", request.getCustomerId(), request.getEventId());
+
         EventRequest transformed = transformEvent(request);
         try {
-            if(request.getStatus().equals("FAILED")) throw new IllegalArgumentException("Simulated exception for testing");
+            if(request.getStatus().equals("FAILED")) throw new IllegalArgumentException();
             String result = outboundCall(transformed);
 
             return ResponseEntity.ok(result);
         }catch (Exception e) {
-            log.error("customerId={} eventId={} step={}", request.getCustomerId(), request.getEventId(), e.getMessage());
+            log.error("customerId={} eventId={} step={}", request.getCustomerId(), request.getEventId(), e.getStackTrace());
         }
 
         return ResponseEntity.internalServerError().body("Internal Server Error");
