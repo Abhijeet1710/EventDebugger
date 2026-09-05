@@ -27,6 +27,8 @@ class InvestigationResult(BaseModel):
 
     service: str
 
+    query: str
+
     overall_status: Literal[
         "SUCCESS",
         "FAILED",
