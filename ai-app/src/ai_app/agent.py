@@ -731,12 +731,12 @@ async def main():
 
     investigation = result["messages"][-1].content
 
-    print("\n")
-    print("=" * 60)
-    print("RAW INVESTIGATION")
-    print("=" * 60)
+    # print("\n")
+    # print("=" * 60)
+    # print("RAW INVESTIGATION")
+    # print("=" * 60)
 
-    print(investigation)
+    # print(investigation)
 
     # --------------------------------------------------------
     # Step 2: Convert findings into structured output
