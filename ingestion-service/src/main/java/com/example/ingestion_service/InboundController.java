@@ -26,8 +26,16 @@ public class InboundController {
         }
 
         EventRequest transformed = transformEvent(request);
-        String result = outboundCall(transformed);
-        return ResponseEntity.ok(result);
+        try {
+            if(request.getStatus().equals("FAILED")) throw new IllegalArgumentException("Simulated exception for testing");
+            String result = outboundCall(transformed);
+
+            return ResponseEntity.ok(result);
+        }catch (Exception e) {
+            log.error("customerId={} eventId={} step={}", request.getCustomerId(), request.getEventId(), e.getMessage());
+        }
+
+        return ResponseEntity.internalServerError().body("Internal Server Error");
     }
 
 
