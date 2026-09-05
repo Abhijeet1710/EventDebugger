@@ -52,6 +52,18 @@ def print_header() -> None:
     )
 
     console.print()
+    
+    console.print(
+        " Guide: Select a service, enter your investigation query, and explore the results.",
+        style="bold",
+    )
+
+    console.print(
+        " ↑/↓ Navigate   Enter Select   Ctrl+C Exit",
+        style="dim",
+    )
+
+    console.print()
 
 
 # -------------------------------------------------------------------
@@ -76,12 +88,12 @@ def select_service() -> str:
         for service in services
     ]
 
-    console.print(
-        " Select a service",
-        style="bold",
-    )
+    # console.print(
+    #     " Select a service",
+    #     style="bold",
+    # )
 
-    console.print()
+    # console.print()
 
     return inquirer.select(
         message="",
@@ -150,7 +162,7 @@ def print_summary(result) -> None:
     console.print()
 
     console.print(
-        result.summary
+        f" {result.summary}"
     )
 
     console.print()
@@ -318,32 +330,12 @@ def interactive_timeline(result) -> None:
 
     choices.append(
         {
-            "name": "",
-            "value": "__separator__",
-            "disabled": True,
-        }
-    )
-
-    choices.append(
-        {
             "name": "←  I'm Good",
             "value": "__exit__",
         }
     )
 
     while True:
-
-        console.print()
-
-        console.print(
-            " Select a step to view evidence",
-            style="bold",
-        )
-
-        console.print(
-            " ↑/↓ Navigate   Enter Select   Ctrl+C Exit",
-            style="dim",
-        )
 
         console.print()
 
