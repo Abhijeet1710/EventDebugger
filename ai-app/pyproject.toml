@@ -1,11 +1,13 @@
 [project]
 name = "ai-app"
 version = "0.1.0"
-description = "Add your description here"
+description = "AI Production Debugger"
 readme = "README.md"
+
 authors = [
     { name = "Abhijeet1710", email = "abhijeetkhamkar30@gmail.com" }
 ]
+
 requires-python = ">=3.13"
 
 dependencies = [
@@ -14,7 +16,12 @@ dependencies = [
     "langchain-openai>=1.6.0",
     "langgraph>=1.2.11",
     "python-dotenv>=1.2.3",
+    "rich>=15.0.0",
+    "typer>=0.16.0",
 ]
+
+[project.scripts]
+ai-debug = "ai_app.cli.app:app"
 
 [build-system]
 requires = ["uv_build>=0.12.6,<0.13.0"]

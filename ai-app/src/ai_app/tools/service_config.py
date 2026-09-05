@@ -11,9 +11,6 @@ def get_service_config(service_name: str) -> dict:
     Returns the service's Splunk configuration,
     event identifier configuration, and processing stages.
     """
-
-    print(f"\nTOOL → get_service_config({service_name})")
-
     config = SERVICE_CONFIGS.get(service_name)
 
     if not config:

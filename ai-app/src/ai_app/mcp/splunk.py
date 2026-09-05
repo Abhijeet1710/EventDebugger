@@ -4,22 +4,20 @@ from langchain_mcp_adapters.client import MultiServerMCPClient
 
 
 async def get_splunk_query_tool():
-
-    print("\nConnecting to Splunk MCP...")
-
     mcp_client = MultiServerMCPClient(
         {
             "splunk": {
                 "transport": "stdio",
-                "command": "npx",
+                "command": "sh",
                 "args": [
-                    "-y",
-                    "mcp-remote",
-                    os.environ["SPLUNK_MCP_URL"],
-                    "--header",
+                    "-c",
                     (
-                        "Authorization: Bearer "
-                        f"{os.environ['SPLUNK_MCP_TOKEN']}"
+                        "npx -y mcp-remote "
+                        f"'{os.environ['SPLUNK_MCP_URL']}' "
+                        "--header "
+                        f"'Authorization: Bearer "
+                        f"{os.environ['SPLUNK_MCP_TOKEN']}' "
+                        "2>/dev/null"
                     ),
                 ],
             }
@@ -28,13 +26,8 @@ async def get_splunk_query_tool():
 
     splunk_tools = await mcp_client.get_tools()
 
-    splunk_query_tool = next(
+    return next(
         tool
         for tool in splunk_tools
         if tool.name == "splunk_run_query"
     )
-
-    print("\nUsing Splunk MCP tool:")
-    print(f"  - {splunk_query_tool.name}")
-
-    return splunk_query_tool
