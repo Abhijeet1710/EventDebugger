@@ -53,11 +53,11 @@ def print_header() -> None:
 
     console.print()
 
-    console.print(
-        " Guide: Select a service, enter your investigation query, "
-        "and explore the results.",
-        style="bold",
-    )
+    # console.print(
+    #     " Guide: Select a service, enter your investigation query, "
+    #     "and explore the results.",
+    #     style="bold",
+    # )
 
     console.print(
         " ↑/↓ Navigate   Enter Select   Ctrl+C Exit",
@@ -360,7 +360,7 @@ def interactive_timeline(result) -> str:
         console.print()
 
         console.print(
-            " Select a step to view evidence",
+            " VIEW EVIDENCE",
             style="bold",
         )
 
