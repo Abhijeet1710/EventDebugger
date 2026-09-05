@@ -149,6 +149,7 @@ Provide:
 - explicit errors
 - evidence
 - final outcome
+- always provide the splunk query used to retrieve the logs
 - distinction between observed facts and likely explanations
 
 Do not perform root cause analysis.
