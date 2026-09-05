@@ -48,11 +48,11 @@ async def main():
 
     investigation = result["messages"][-1].content
 
-    print("\n" + "-" * 60)
-    print("RAW INVESTIGATION RESULT")
-    print("-" * 60)
+    # print("\n" + "-" * 60)
+    # print("RAW INVESTIGATION RESULT")
+    # print("-" * 60)
 
-    print(investigation)
+    # print(investigation)
 
     print("\n[3] Formatting investigation result...")
 
